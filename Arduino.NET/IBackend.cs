@@ -18,7 +18,8 @@ namespace Arduino.NET
     {
         public bool IsConnected { get; }
 
-        public Task ReadAsync(Action<byte[]> callback);
-        public Task WriteAsync(byte[] content);
+        public Task<bool> ConnectAsync(string identifier, int baudRate);
+        public Task<bool> ReadAsync(Action<byte[]> callback);
+        public Task<bool> WriteAsync(byte[] content);
     }
 }

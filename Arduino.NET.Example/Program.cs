@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Arduino.NET.Example
@@ -8,11 +10,16 @@ namespace Arduino.NET.Example
         private static void OnDataReceived(byte[] content)
         {
             Console.WriteLine("Data received!");
+            Console.WriteLine(Encoding.ASCII.GetString(content));
         }
 
         public static async Task<int> Main(string[] args)
         {
-            using var arduino = ArduinoDevice.Create();
+            using var arduino = await ArduinoDevice.ConnectAsync(new Dictionary<string, string>
+            {
+                ["linux"] = "/dev/ttyACM0"
+            }, 9600);
+
             if (arduino == null)
             {
                 return 1;
