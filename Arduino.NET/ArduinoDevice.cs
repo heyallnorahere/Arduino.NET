@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Arduino.NET
@@ -105,6 +106,14 @@ namespace Arduino.NET
         public async Task<bool> ReadAsync()
         {
             return await mBackend.ReadAsync(content => OnDataReceived?.Invoke(content));
+        }
+
+        public async Task<bool> WriteAsync(string content, Encoding? encoding = null)
+        {
+            var usedEncoding = encoding ?? Encoding.ASCII;
+            var bytes = usedEncoding.GetBytes(content);
+
+            return await WriteAsync(bytes);
         }
 
         public async Task<bool> WriteAsync(byte[] content)

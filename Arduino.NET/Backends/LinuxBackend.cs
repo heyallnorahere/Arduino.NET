@@ -13,23 +13,58 @@ namespace Arduino.NET.Backends
         public LinuxBackend()
         {
             mFileDescriptor = -1;
+            mDisposed = false;
             mEncoding = Encoding.ASCII;
         }
 
-        ~LinuxBackend() => Dispose(false);
+        ~LinuxBackend()
+        {
+            if (mDisposed)
+            {
+                return;
+            }
+
+            Dispose(false);
+        }
 
         public void Dispose()
         {
+            if (mDisposed)
+            {
+                return;
+            }
+
             Dispose(true);
-            GC.SuppressFinalize(this);
+            mDisposed = true;
         }
 
         private void Dispose(bool disposing)
         {
-            // todo: disconnect
+            if (mFileDescriptor < 0)
+            {
+                return;
+            }
+
+            close(mFileDescriptor);
+            mFileDescriptor = -1;
         }
 
-        public bool IsConnected => mFileDescriptor >= 0;
+        private void CheckDisposed()
+        {
+            if (mDisposed)
+            {
+                throw new ObjectDisposedException(GetType().Name);
+            }
+        }
+
+        public bool IsConnected
+        {
+            get
+            {
+                CheckDisposed();
+                return mFileDescriptor >= 0;
+            }
+        }
 
         private unsafe int OpenFileDescriptor(string file)
         {
@@ -92,6 +127,7 @@ namespace Arduino.NET.Backends
 
         public async Task<bool> ConnectAsync(string identifier, int baudRate)
         {
+            CheckDisposed();
             if (IsConnected)
             {
                 return true;
@@ -138,6 +174,7 @@ namespace Arduino.NET.Backends
 
         public async Task<bool> ReadAsync(Action<byte[]> callback)
         {
+            CheckDisposed();
             if (!IsConnected)
             {
                 return false;
@@ -157,6 +194,7 @@ namespace Arduino.NET.Backends
 
         public async Task<bool> WriteAsync(byte[] content)
         {
+            CheckDisposed();
             if (!IsConnected)
             {
                 return false;
@@ -166,6 +204,7 @@ namespace Arduino.NET.Backends
         }
 
         private int mFileDescriptor;
+        private bool mDisposed;
         private readonly Encoding mEncoding;
     }
 }

@@ -7,13 +7,7 @@ namespace Arduino.NET.Example
 {
     internal static class Program
     {
-        private static void OnDataReceived(byte[] content)
-        {
-            Console.WriteLine("Data received!");
-            Console.WriteLine(Encoding.ASCII.GetString(content));
-        }
-
-        public static async Task<int> Main(string[] args)
+        public static async Task Main(string[] args)
         {
             using var arduino = await ArduinoDevice.ConnectAsync(new Dictionary<string, string>
             {
@@ -22,13 +16,29 @@ namespace Arduino.NET.Example
 
             if (arduino == null)
             {
-                return 1;
+                return;
             }
 
-            arduino.OnDataReceived += OnDataReceived;
-            await arduino.ReadAsync();
+            var encoding = Encoding.ASCII;
+            string received = string.Empty;
 
-            return 0;
+            arduino.OnDataReceived += async content => 
+            {
+                string decoded = encoding.GetString(content);
+                Console.Write(decoded);
+
+                received += decoded;
+                if (received.EndsWith("Please give me data!\r\n"))
+                {
+                    received = string.Empty;
+                    await arduino.WriteAsync("Hello!", encoding);
+                }
+            };
+
+            while (true)
+            {
+                await arduino.ReadAsync();
+            }
         }
     }
 }
