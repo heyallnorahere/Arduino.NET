@@ -1,0 +1,26 @@
+name: publish
+on: [ push ]
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            6.x.x
+            7.x.x
+      - name: build
+        shell: bash
+        run: |
+          dotnet build -c Release
+          dotnet pack -c Release
+      - name: publish
+        shell: bash
+        run: |
+          dotnet nuget add source --username yodasoda1219 --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/yodasoda1219/index.json"
+          dotnet nuget push "Arduino.NET/bin/Release/Arduino.NET.*.nupkg" --source github

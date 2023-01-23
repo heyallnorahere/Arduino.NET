@@ -4,6 +4,11 @@
         <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <PackageId>Arduino.NET</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Nora Beda</Authors>
+        <Description>A simple library for interfacing with Arduino. Currently Linux-only.</Description>
+        <RepositoryURL>https://github.com/yodasoda1219/Arduino.NET</RepositoryURL>
     </PropertyGroup>
 
     <ItemGroup>
