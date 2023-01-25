@@ -100,7 +100,10 @@ namespace Arduino.NET
 
         private void Dispose(bool disposing)
         {
-            mBackend.Dispose();
+            if (disposing)
+            {
+                mBackend.Dispose();
+            }
         }
 
         public async Task<bool> ReadAsync()
