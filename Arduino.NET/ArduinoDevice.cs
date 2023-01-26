@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Arduino.NET
@@ -106,22 +107,22 @@ namespace Arduino.NET
             }
         }
 
-        public async Task<bool> ReadAsync()
+        public async Task<bool> ReadAsync(CancellationToken? token = null)
         {
-            return await mBackend.ReadAsync(content => OnDataReceived?.Invoke(content));
+            return await mBackend.ReadAsync(content => OnDataReceived?.Invoke(content), token);
         }
 
-        public async Task<bool> WriteAsync(string content, Encoding? encoding = null)
+        public async Task<bool> WriteAsync(string content, Encoding? encoding = null, CancellationToken? token = null)
         {
             var usedEncoding = encoding ?? Encoding.ASCII;
             var bytes = usedEncoding.GetBytes(content);
 
-            return await WriteAsync(bytes);
+            return await WriteAsync(bytes, token);
         }
 
-        public async Task<bool> WriteAsync(byte[] content)
+        public async Task<bool> WriteAsync(byte[] content, CancellationToken? token = null)
         {
-            return await mBackend.WriteAsync(content);
+            return await mBackend.WriteAsync(content, token);
         }
 
         internal IBackend Backend => mBackend;

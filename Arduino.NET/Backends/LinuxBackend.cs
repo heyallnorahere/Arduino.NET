@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Tmds.Linux;
@@ -172,7 +173,7 @@ namespace Arduino.NET.Backends
             return false;
         }
 
-        public async Task<bool> ReadAsync(Action<byte[]> callback)
+        public async Task<bool> ReadAsync(Action<byte[]> callback, CancellationToken? token)
         {
             CheckDisposed();
             if (!IsConnected)
@@ -180,7 +181,17 @@ namespace Arduino.NET.Backends
                 return false;
             }
 
-            return await Task.Run(() => ReadFileDescriptor(callback));
+            Task<bool> task;
+            if (token != null)
+            {
+                task = Task.Run(() => ReadFileDescriptor(callback), token.Value);
+            }
+            else
+            {
+                task = Task.Run(() => ReadFileDescriptor(callback));
+            }
+
+            return await task;
         }
 
         private unsafe bool WriteFileDescriptor(byte[] content)
@@ -192,7 +203,7 @@ namespace Arduino.NET.Backends
             }
         }
 
-        public async Task<bool> WriteAsync(byte[] content)
+        public async Task<bool> WriteAsync(byte[] content, CancellationToken? token)
         {
             CheckDisposed();
             if (!IsConnected)
@@ -200,7 +211,17 @@ namespace Arduino.NET.Backends
                 return false;
             }
 
-            return await Task.Run(() => WriteFileDescriptor(content));
+            Task<bool> task;
+            if (token != null)
+            {
+                task = Task.Run(() => WriteFileDescriptor(content), token.Value);
+            }
+            else
+            {
+                task = Task.Run(() => WriteFileDescriptor(content));
+            }
+
+            return await task;
         }
 
         private int mFileDescriptor;

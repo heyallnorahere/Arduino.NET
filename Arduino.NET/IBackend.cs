@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Arduino.NET
@@ -19,7 +20,7 @@ namespace Arduino.NET
         public bool IsConnected { get; }
 
         public Task<bool> ConnectAsync(string identifier, int baudRate);
-        public Task<bool> ReadAsync(Action<byte[]> callback);
-        public Task<bool> WriteAsync(byte[] content);
+        public Task<bool> ReadAsync(Action<byte[]> callback, CancellationToken? token);
+        public Task<bool> WriteAsync(byte[] content, CancellationToken? token);
     }
 }
