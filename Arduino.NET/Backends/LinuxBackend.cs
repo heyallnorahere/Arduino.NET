@@ -173,6 +173,17 @@ namespace Arduino.NET.Backends
             return false;
         }
 
+        public bool Read(Action<byte[]> callback)
+        {
+            CheckDisposed();
+            if (!IsConnected)
+            {
+                return false;
+            }
+
+            return ReadFileDescriptor(callback);
+        }
+
         public async Task<bool> ReadAsync(Action<byte[]> callback, CancellationToken? token)
         {
             CheckDisposed();
@@ -203,6 +214,17 @@ namespace Arduino.NET.Backends
             }
         }
 
+        public bool Write(byte[] content)
+        {
+            CheckDisposed();
+            if (!IsConnected)
+            {
+                return false;
+            }
+
+            return WriteFileDescriptor(content);
+        }
+
         public async Task<bool> WriteAsync(byte[] content, CancellationToken? token)
         {
             CheckDisposed();
@@ -219,6 +241,43 @@ namespace Arduino.NET.Backends
             else
             {
                 task = Task.Run(() => WriteFileDescriptor(content));
+            }
+
+            return await task;
+        }
+
+        private unsafe bool SyncFileDescriptor()
+        {
+            return fsync(mFileDescriptor) == 0;
+        }
+
+        public bool Flush()
+        {
+            CheckDisposed();
+            if (!IsConnected)
+            {
+                return false;
+            }
+
+            return SyncFileDescriptor();
+        }
+
+        public async Task<bool> FlushAsync(CancellationToken? token)
+        {
+            CheckDisposed();
+            if (!IsConnected)
+            {
+                return false;
+            }
+
+            Task<bool> task;
+            if (token != null)
+            {
+                task = Task.Run(SyncFileDescriptor, token.Value);
+            }
+            else
+            {
+                task = Task.Run(SyncFileDescriptor);
             }
 
             return await task;

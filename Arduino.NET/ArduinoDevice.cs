@@ -112,6 +112,19 @@ namespace Arduino.NET
             return await mBackend.ReadAsync(content => OnDataReceived?.Invoke(content), token);
         }
 
+        public bool Write(string content, Encoding? encoding = null)
+        {
+            var usedEncoding = encoding ?? Encoding.ASCII;
+            var bytes = usedEncoding.GetBytes(content);
+
+            return Write(bytes);
+        }
+
+        public bool Write(byte[] content)
+        {
+            return mBackend.Write(content);
+        }
+
         public async Task<bool> WriteAsync(string content, Encoding? encoding = null, CancellationToken? token = null)
         {
             var usedEncoding = encoding ?? Encoding.ASCII;
@@ -123,6 +136,12 @@ namespace Arduino.NET
         public async Task<bool> WriteAsync(byte[] content, CancellationToken? token = null)
         {
             return await mBackend.WriteAsync(content, token);
+        }
+
+        public bool Flush() => mBackend.Flush();
+        public async Task<bool> FlushAsync(CancellationToken? token = null)
+        {
+            return await mBackend.FlushAsync(token);
         }
 
         internal IBackend Backend => mBackend;

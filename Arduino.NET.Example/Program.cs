@@ -32,6 +32,7 @@ namespace Arduino.NET.Example
                 {
                     received = string.Empty;
                     await arduino.WriteAsync("Hello!", encoding);
+                    await arduino.FlushAsync();
                 }
             };
 
